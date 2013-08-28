@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Memgrid</title>
+  <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
+  <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
+  <%= csrf_meta_tags %>
+</head>
+<body>
+  <div id="maincol">
+
+  <div id="titlebar">
+    <div id="title">MemGrid</div>
+    <% if(@logged_in) %>
+      <div id="loginbox"><%= @logged_uname %> | <a href="/login/logout">Logout</a></div>
+    <% else %>
+      <div id="loginbox">Guest | <a href="/login">Login</a></div>
+    <% end %>
+  </div>
+
+  <div id="content_area">
+    <%= yield %>
+  </div>
+
+  </div>
+</body>
+</html>

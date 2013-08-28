@@ -1,0 +1,10 @@
+<div class='bigheader'>Login</div>
+
+<div id='login_error' class='error_message'><%= @error_mess %></div>
+<form id="login_form" method='post'>
+<table border="0">
+<tr><td>Username</td><td><%= text_field_tag 'uname', '', size: 20, maxlength: 30 %></td></tr>
+<tr><td>Password</td><td><%= password_field_tag 'passw', '', size: 20, maxlength: 30 %></td></tr>
+<td><td colspan='2'><input type="button" value="Login" onclick='process_login()'><input type="button" value="Register" onclick='process_register()'></td></tr>
+</table>
+</form>

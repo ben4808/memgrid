@@ -1,0 +1,62 @@
+<script>
+  $(function() {
+    var full_defs = {
+    <% @words.each_with_index do |word, i| %>
+      <%= ', ' if(i != 0) %><%= word.id %>: "<%= raw word.definition %>" 
+    <% end %> };
+    store_definitions(full_defs);
+  });
+</script>
+
+<div class="bigheader"><%=  @list.name %></div>
+<br>
+
+<table class="data_table">
+<tr>
+  <th>Word</th>
+  <th>Definition</th>
+  <th>Action</th>
+</tr>
+<% @words.each do |word| %>
+  <tr id="word_<%= word.id %>">
+    <td style='text-align: left'><%= word.word %></a></td>
+    <td style='text-align: left'><%=  word.first_def %></td>
+    <td><a href="#" onclick="show_full_def(<%= word.id %>)">Full Def</a> | <a href="#" onclick="delete_word(<%= @list.id %>, <%= word.id %>)">Delete</a></td>
+  </tr>
+<% end %>
+</table>
+
+<br>
+
+<div id="add_word_box" style="float:left">
+  <div id="not_a_word" class="error_message"><%= @error_message %></div>
+  <div>
+    <form action='/list/<%= @list.id %>/new' method='post'>
+      <%= text_field_tag 'word', '', placeholder: 'Word', size: 20, maxlength: 255 %>
+      <input type="submit" value="Add Word">
+    </form>
+  </div>
+</div>
+
+<div id="star_quiz_box" style="float:left;margin-left:25px">
+  <form action='/list/<%= @list.id %>/quiz' method='post'>
+    <%= text_field_tag 'questions', '', placeholder: '#Ques.', size: 20, maxlength: 3 %>
+    <input type="button" value="Normal Quiz"><input type="button" value="Reverse Quiz">
+  </form>
+</div>
+
+<br><br>
+
+<div id="add_words_box" style="clear:both">
+  <form action='/list/<%= @list.id %>/new_multiple' method='post'>
+    <%= text_area_tag 'words', '', rows: 3, cols: 50 %><br>
+    <input type="submit" value="Add Words">
+  </form>
+</div>
+
+<br>
+
+<div id="full_def_panel">
+  Click on a "Full Def" link to see full definition here.
+</div>
+
