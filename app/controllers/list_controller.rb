@@ -16,20 +16,24 @@ class ListController < ApplicationController
   def index
     id = params[:id]
     @error_message = (params.has_key?(:error) ? get_error_message(params[:error]) : "")
-    @list = List.where("id=#{id}").first
-    @words = Word.find_by_sql("select distinct words.* from words, lists, list_words where list_words.list_id = #{id} and list_words.word_id = words.id order by words.word")
+    @list = List.where(id: id).first
+
+    words = @list.words.order(:word)
+    @word_data = {}
+    words.each do |word|
+      lw = word.list_words.where(list_id: @list.id).first
+      @word_data[word.id] = {word: word.word, definitions: lw.listword_defs.map {|defi| defi.definition} }
+    end
   end
 
   def new
     @error_no = 0
     id = params[:id]
     word = params[:word].strip
-    word = word.gsub(/[^\w_-]/, '').gsub(/_/, ' ')
-    add_word(id, word)   
+    word = word.gsub(/[^\w -]/, '')
+    add_word(id, word)
  
-    redirect_path = "/list/#{id}"
-    redirect_path += "?error=#{@error_no}" if @error_no > 0
-    redirect_to redirect_path
+    redirect_to "/list/#{id}", notice: get_error_message(@error_no)
   end
 
   def new_multiple
@@ -45,41 +49,60 @@ class ListController < ApplicationController
     redirect_to "/list/#{id}"
   end
 
+  def edit
+    id = params[:id]
+    word_id = params[:wid]
+
+    lw = ListWord.where(:list_id => id, :word_id => word_id).first
+    ListwordDef.where(list_word_id: lw.id).destroy_all
+
+    i = 0
+    while params.has_key? "def_#{i}".to_sym
+      defi = params["def_#{i}".to_sym].strip
+      i += 1
+      next if defi.length == 0
+      ListwordDef.create(list_word_id: lw.id, definition: defi)
+    end
+
+    render nothing: true 
+  end
+
   def delete
     id = params[:id]
     word_id = params[:wid]
-    ListWord.where(:list_id => id, :word_id => word_id).destroy_all
+    lw = ListWord.where(:list_id => id, :word_id => word_id)
+    ListwordDef.where(list_word_id: lw[0].id).destroy_all
+    lw.destroy_all
 
-    redirect_to "/list/#{id}"
+    render nothing: true
   end
 
   def add_word(list_id, word)
-    puts word
-    res = Word.where(:word => word)
+    word_data = Word.where(:word => word).first
+
     #if word does not exist in database, grab definition from Merriam-Webster
-    if(res.length == 0)
+    if(!word_data)
       #data = Nokogiri::XML(File.open('/home/zoonb/memgrid/public/the.xml'))
-      url_word = URI::escape(word)
-      data = Nokogiri::XML(open("http://www.dictionaryapi.com/api/v1/references/collegiate/xml/#{url_word}?key=962712b3-cfd1-41ff-94a7-fa2e38584961"))
+      data = Nokogiri::XML(open("http://www.dictionaryapi.com/api/v1/references/collegiate/xml/#{URI::escape(word)}?key=962712b3-cfd1-41ff-94a7-fa2e38584961"))
       full_def = word_data_to_html(word, data)
-      if(@error_no == 0)
-        first_def = first_definition(word, data)
-        new_row = Word.create(word: word, first_def: first_def, definition: full_def)
-        ListWord.create(list_id: list_id, word_id: new_row.id)
-      end
-    else
-      res2 = ListWord.where(:list_id => list_id, :word_id => res[0].id)
-      if (res2.length == 0)
-	ListWord.create(list_id: list_id, word_id: res[0].id)
-      else
-	@error_no = 2
-      end
+      return if(@error_no != 0)
+
+      first_def = first_definition(word, data)
+      word_data = Word.create(word: word, first_def: first_def, definition: full_def)
     end
+
+    existing_record = ListWord.where(:list_id => list_id, :word_id => word_data.id).first
+    if (existing_record)
+      @error_no = 2
+      return
+    end
+
+    list_word = ListWord.create(list_id: list_id, word_id: word_data.id)
+    ListwordDef.create(list_word_id: list_word.id, definition: word_data.first_def)
   end
   
   def word_data_to_html(word, data)
     if data.css('def').length == 0
-      puts "HI"
       @error_no = 1
       return ''
     end
@@ -144,13 +167,13 @@ class ListController < ApplicationController
     if(str == '' && data.at_xpath('//cx[1]') != nil)
       str = data.at_xpath('//cx').to_s
     end
-    str = str.gsub(/<vi>.*?<\/vi>/, '').gsub(/<[^>]+?>/, '').gsub(/^ *:|:$/, '')
+    str = str.gsub(/<vi>.*?<\/vi>/, '').gsub(/<[^>]+?>/, '').gsub(/^ *:|:$/, '').gsub(/ \d$/, '')
     str
   end
 
   def get_error_message(error_no)
-    return "Word not found in dictionary." if error_no == '1'
-    return "Word already in list." if error_no == '2'
+    return "Word not found in dictionary." if error_no == 1
+    return "Word already in list." if error_no == 2
     return ""
   end
 end

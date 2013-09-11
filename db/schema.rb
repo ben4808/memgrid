@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130826025750) do
+ActiveRecord::Schema.define(version: 20130910021234) do
 
   create_table "list_words", force: true do |t|
     t.integer "list_id"
@@ -21,6 +21,11 @@ ActiveRecord::Schema.define(version: 20130826025750) do
   create_table "lists", force: true do |t|
     t.integer "user_id"
     t.string  "name"
+  end
+
+  create_table "listword_defs", force: true do |t|
+    t.integer "list_word_id"
+    t.string  "definition"
   end
 
   create_table "users", force: true do |t|

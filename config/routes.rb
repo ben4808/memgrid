@@ -1,4 +1,5 @@
 Memgrid::Application.routes.draw do
+  get "dump_words/index"
   get "list/index"
   root :to => 'home#index'
   get '/', to: 'home#index'
@@ -12,7 +13,9 @@ Memgrid::Application.routes.draw do
   get '/list/:id', to: 'list#index'
   post '/list/:id/new', to: 'list#new'
   post '/list/:id/new_multiple' , to: 'list#new_multiple'
+  post '/list/:id/edit/:wid', to: 'list#edit'
   get 'list/:id/delete/:wid', to: 'list#delete'
+  get '/dump_words', to: 'dump_words#index'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

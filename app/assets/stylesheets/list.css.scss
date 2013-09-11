@@ -2,7 +2,23 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-#full_def_panel {
-  border: solid 2px gray;
-  padding: 5px;
+#add_word_box {
+  float: left;
+}
+
+#start_quiz_box {
+  float: left;
+  margin-left: 25px;
+}
+
+#word_list {
+  clear: both;
+
+  td {
+    text-align: left;
+  }
+}
+
+#add_words_box {
+  
 }
