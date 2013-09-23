@@ -20,3 +20,8 @@ window.submit_edit = (id) ->
 window.delete_list = (id) ->
   window.location = "/delete/#{id}" if(confirm('Are you sure?'))
   return
+
+window.submit_search = ->
+  keyword = $('#search_keyword').val().replace(/^\s+|\s+$/g, "")
+  window.location = "/browse/search/#{keyword}" if keyword.length > 0
+  return

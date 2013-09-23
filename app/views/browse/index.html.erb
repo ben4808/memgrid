@@ -1,0 +1,23 @@
+<script>
+  var records_per_request = 10;
+  var cur_offset = 0;
+
+  $(function() {
+    request_data ('<%= records_path %>', '<%= @query_type %>', '<%= @user %>', '<%= @keyword %>');
+  });
+
+  function request_data (url, query_type, uid, keyword) {
+    load_lists (url, query_type, uid, keyword, records_per_request, cur_offset);
+    cur_offset += records_per_request;
+  }
+</script>
+
+<div class="bigheader"><%= @heading %></div>
+<br>
+
+<div id="lists">
+</div>
+
+<div id="load_more">
+</div>
+

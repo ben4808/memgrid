@@ -1,22 +1,10 @@
-<div class="bigheader">Your Lists</div>
-<br>
+<div class="bigheader">Welcome to Vocab Buddy!</div>
 
-<table class="data_table">
-<tr>
-  <th>Name</th>
-  <th>Words</th>
-  <th>Action</th>
-</tr>
-<% @list_names.each do |key, value| %>
-  <tr id="list_<%= key %>">
-    <td style='text-align: left'><a href="/list/<%= key %>"><%= value %></a></td>
-    <td><%= @list_counts[key] %></td>
-    <td><a href="#" onclick="make_edit_list_row(<%= key %>, '<%= value %>')">Edit</a> | <a href="#" onclick="delete_list(<%= key %>)">Delete</a></td>
-  </tr>
-<% end %>
-</table>
-<br>
-<form action='/new' method='post'>
-<%= text_field_tag 'name', '', placeholder: 'Name', size: 20, maxlength: 255 %>
-<input type="submit" value="New List">
-</form>
+<p>Vocab Buddy is an easy way to look up, store, and learn unfamiliar words you encounter in your reading.<p>
+<p>Here are some things you can do:</p>
+<ul>
+  <li>Browse and rate public lists created by other users
+  <li>Create an account and make your own lists with auto-generated or your own definitions
+  <li>Take quizzes to learn the words in any list
+</ul>
+<p>To get started, click the browse link above or log into your account.</p>

@@ -3,6 +3,7 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   # protect_from_forgery with: :exception
 
+  before_filter :set_login_info
   def set_login_info
     if(cookies.has_key?(:uid))
       @logged_in = true
@@ -13,7 +14,11 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def redirect_if_not_logged
-    redirect_to '/login' if !@logged_in
+  def redirect_if_logged_in
+    redirect_to user_path(@logged_uid) if @logged_in
+  end
+
+  def redirect_if_not_logged_in
+    redirect_to login_path if !@logged_in
   end
 end

@@ -11,7 +11,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130910021234) do
+ActiveRecord::Schema.define(version: 20130915025106) do
+
+  create_table "def_votes", force: true do |t|
+    t.integer "user_id"
+    t.integer "listword_def_id"
+  end
+
+  create_table "favorites", force: true do |t|
+    t.integer "user_id"
+    t.integer "list_id"
+  end
+
+  create_table "list_votes", force: true do |t|
+    t.integer "user_id"
+    t.integer "list_id"
+    t.boolean "is_up"
+  end
 
   create_table "list_words", force: true do |t|
     t.integer "list_id"
@@ -21,11 +37,15 @@ ActiveRecord::Schema.define(version: 20130910021234) do
   create_table "lists", force: true do |t|
     t.integer "user_id"
     t.string  "name"
+    t.integer "points"
+    t.text    "description"
+    t.boolean "public"
   end
 
   create_table "listword_defs", force: true do |t|
     t.integer "list_word_id"
     t.string  "definition"
+    t.integer "points"
   end
 
   create_table "users", force: true do |t|

@@ -1,0 +1,28 @@
+// Place all the styles related to the browse controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+.list_box {
+  background-color: #DDD;
+  border: solid 2px gray;
+  border-radius: 10px;
+}
+
+.list_votes {
+  float: left;
+  width: 50px;
+  text-align: center;
+}
+
+.list_info {
+}
+
+.list_title {
+  color: #069;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.list_ln2 {
+  font-size: 12px;
+}

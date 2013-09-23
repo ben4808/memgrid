@@ -1,4 +1,4 @@
 db/*.sqlite3
 tmp
-public/*.xml
+public
 log

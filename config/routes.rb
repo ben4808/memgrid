@@ -1,21 +1,31 @@
 Memgrid::Application.routes.draw do
-  get "dump_words/index"
-  get "list/index"
-  root :to => 'home#index'
-  get '/', to: 'home#index'
-  post '/new', to: 'home#new'
-  post '/edit/:id', to: 'home#edit'
-  get '/delete/:id', to: 'home#delete'
+  root to: 'home#index'
   get '/login', to: 'login#index'
-  post '/login/register', to: 'login#register'
   post '/login/login', to: 'login#login'
-  get '/login/logout', to: 'login#logout'
-  get '/list/:id', to: 'list#index'
+  post '/login/register', to: 'login#register'
+  get '/logout', to: 'login#logout'
+  get '/browse', to: 'browse#index'
+  post '/browse/records', to: 'browse#records', as: 'records'
+  get '/browse/favorites', to: 'browse#favorites', as: 'favorites'
+  get '/browse/your', to: 'browse#your', as: 'your'
+  get '/browse/user/:user', to: 'browse#user', as: 'user'
+  get '/browse/search/:keyword', to: 'browse#search', as: 'search'
+  post '/browse/new', to: 'browse#new'
+  post '/browse/edit/:id', to: 'browse#edit'
+  get '/browse/delete/:id', to: 'browse#delete'
+  get '/list/:id', to: 'list#index', as: 'list'
   post '/list/:id/new', to: 'list#new'
   post '/list/:id/new_multiple' , to: 'list#new_multiple'
   post '/list/:id/edit/:wid', to: 'list#edit'
-  get 'list/:id/delete/:wid', to: 'list#delete'
+  get '/list/:id/delete/:wid', to: 'list#delete'
+  get '/quiz/:id', to: 'quiz#normal'
+  get '/quiz/:id/reverse', to: 'quiz#reverse'
+  post '/quiz/:qid/submit', to: 'quiz#submit'
+  post '/quiz/:qid/next', to: 'quiz#next'
+
   get '/dump_words', to: 'dump_words#index'
+  get '/load_words', to: 'load_words#index'
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

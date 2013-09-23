@@ -1,0 +1,42 @@
+<% if @query_type == 'your' && @offset == 0 %>
+  <div id="new_list_form">
+    <div class="error_message"><%= flash[:notice] %></div>
+    <%= form_tag browse_new_path %>
+      <%= text_field_tag 'new_list_name', nil, placeholder: 'Name', size: 15, maxlength: 255 %> 
+      <label><%= check_box_tag 'new_list_public', nil, checked: true %> Public</label><br>
+      <%= text_field_tag 'new_list_desc', nil, placeholder: 'Description', size: 75, maxlength: 255 %><br>
+      <%= submit_tag 'New List' %>
+    </form>
+    </div>
+  <br>
+<% end %>
+
+<% @lists.each do |list| %>
+  <div id="list_<%= list.id %>" class="list_box">
+    <div class="list_votes">
+      <%= link_to '+', '#' %><br><%= list.points %><br><%= link_to '-', '#' %>
+    </div>
+    <div class="list_info">
+      <span class="list_title"><%= link_to list.name, list_path(list.id) %></span> 
+      <% if @query_type == 'your' %>
+	(<a href="javascript:void(0)" onclick="edit_list(<%= list.id %>, '<%= list.name %>', '<%= list.description %>')">Edit</a> | <a href="javascript:void(0)" onclick="delete_list(<%= list.id %>)">Delete</a>)
+      <% end %>
+      <br>
+      <span class="list_ln2"><%= link_to list.author, user_path(list.author) %> - <%= pluralize(list.count, 'word') %>
+	<%= " - (" + list.first_words.join(', ') + (list.count > 3 ? ', ...' : '') + ')' if list.count > 0 %></span><br>
+      <%= list.description %>
+    </div>
+  </div>
+  <br>
+<% end %>
+
+<% if @count > 0 %>
+<div id="load_more">
+  Showing lists 1 to <%= @count %> of <%= @total %>. 
+  <% if @count < @total %>
+    <a href="javascript:void(0)" onclick="request_data ('<%= records_path %>', '<%= @query_type %>', '<%= @user %>')">More...</a>
+  <% end %>
+</div>
+<% else %>
+No results.
+<% end %>

@@ -3,6 +3,7 @@ class CreateListwordDefs < ActiveRecord::Migration
     create_table :listword_defs do |t|
       t.belongs_to :list_word
       t.string :definition
+      t.integer :points
     end
   end
 end
