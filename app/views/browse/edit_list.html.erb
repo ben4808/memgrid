@@ -1,0 +1,10 @@
+<div id="edit_list_form" class="edit_box">
+  Note: Edit will have no effect if any field is left blank.
+  <%= form_tag edit_list_s_path(@list.id) %>
+    <%= text_field_tag 'edit_list_name', @list.name, placeholder: 'Name', size: 15, maxlength: 255 %>
+    <label><%= check_box_tag 'edit_list_public', nil, @list.public %> Public</label><br>
+    <%= text_field_tag 'edit_list_desc', @list.description, placeholder: 'Description', size: 75, maxlength: 255 %><br>
+    <%= submit_tag 'Save' %> <%= button_to_function "Cancel", "cancel_list_edit(#{@list.id})" %>
+  </form>
+</div>
+

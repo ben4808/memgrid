@@ -5,6 +5,9 @@
 # backup to restore if they cancel an edit
 saved_html = {}
 
+window.show_full_def = (id) ->
+  window.open('/full_def/' + id, '_blank', 'height=600,width=800,resizable=yes,scrollbars=yes,menubar=yes,toolbar=yes,status=yes')
+
 window.delete_word = (list_id, word_id) ->
   if(confirm('Are you sure?'))
     $.get("/list/#{list_id}/delete/#{word_id}").done ->
@@ -19,10 +22,10 @@ window.edit_word = (list_id, word_id) ->
     defs.push($(this).attr('title'))
   if (defs.length > 0)
     form_html += "<input id=\"def_#{i}\" name=\"def_#{i}\" type=\"text\" size=\"60\" maxlength=\"255\" value=\"#{defs[i]}\" /><br>" for i in [0..defs.length-1]
-  form_html += "<a href=\"#\" onclick=\"add_def_line(#{word_id})\">Add Definition</a>"
+  form_html += "<a href=\"javascript:void(0)\" onclick=\"add_def_line(#{word_id})\">Add Definition</a>"
 
-  action_html = "<a href=\"#\" onclick=\"submit_edit(#{list_id}, #{word_id})\">Submit</a> | "
-  action_html += "<a href=\"#\" onclick=\"cancel_edit(#{list_id}, #{word_id})\">Cancel</a>"
+  action_html = "<a href=\"javascript:void(0)\" onclick=\"submit_edit(#{list_id}, #{word_id})\">Submit</a> | "
+  action_html += "<a href=\"javascript:void(0)\" onclick=\"cancel_edit(#{list_id}, #{word_id})\">Cancel</a>"
 
   saved_html[word_id] = $("#word_#{word_id} td:nth-child(2)").html()
 
@@ -63,7 +66,7 @@ window.submit_edit = (list_id, word_id) ->
 window.cancel_edit = (list_id, word_id) ->
   $("#word_#{word_id} td:nth-child(2)").html(saved_html[word_id])
 
-  action_html = "<a href=\"#\" onclick=\"edit_word(#{list_id}, #{word_id})\">Edit</a> | "
-  action_html += "<a href=\"#\" onclick=\"delete_word(#{list_id}, #{word_id})\">Delete</a>"
+  action_html = "<a href=\"javascript:void(0)\" onclick=\"edit_word(#{list_id}, #{word_id})\">Edit</a> | "
+  action_html += "<a href=\"javascript:void(0)\" onclick=\"delete_word(#{list_id}, #{word_id})\">Delete</a>"
   $("#word_#{word_id} td:nth-child(3)").html(action_html)
   return

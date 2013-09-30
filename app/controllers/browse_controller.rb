@@ -1,6 +1,6 @@
 class BrowseController < ApplicationController
   before_filter :set_login_info
-  before_filter :redirect_if_not_logged_in
+  before_filter :redirect_if_not_logged_in, except: [:index, :search, :records]
 
   before_filter :setup_list_vars, only: [:index, :favorites, :your, :user]
   def setup_list_vars
@@ -83,16 +83,40 @@ class BrowseController < ApplicationController
 
   def edit
     id = params[:id]
-    list = List.where(:id => id).first
-    list.name = params[:name]
-    list.save
-    redirect_to '/'
+    list = List.find(id)
+    list.name = params[:edit_list_name].strip
+    list.public = !params[:edit_list_public].nil?
+    list.description = params[:edit_list_desc].strip
+    list.save unless list.name.empty? || list.description.empty?
+    redirect_to your_path
+  end
+
+  def edit_list
+    id = params[:id]
+    @list = List.find(id)
+    render layout: false
   end
 
   def delete
     id = params[:id]
     List.where(:id => id).destroy_all
-    redirect_to '/'
+    redirect_to your_path
+  end
+
+  def vote
+    id = params[:id]
+    is_up = params[:dir] == 'up'
+    list = List.find(id)
+    cur_vote = ListVote.where(user_id: @logged_uid, list_id: id).first
+    if(cur_vote.nil?)
+      ListVote.create(user_id: @logged_uid, list_id: id, is_up: is_up)
+      list.points += (is_up ? 1 : -1)
+    elsif(cur_vote.is_up != is_up)
+      cur_vote.destroy
+      list.points += (is_up ? 1 : -1)
+    end
+    list.save
+    render nothing: true
   end
 
   def make_list_records (res)
@@ -102,17 +126,19 @@ class BrowseController < ApplicationController
       first_words = []
       3.times { |i| first_words << words[i].word if words[i] }
       puts first_words.to_s
-      ret << ListRecord.new(list.id, list.name, list.description, list.points, list.user.username, words.count, first_words)
+      vote_res = @logged_in ? ListVote.where("user_id=#{@logged_uid} and list_id=#{list.id}").first : nil
+      vote = vote_res.nil? ? 0 : (vote_res.is_up ? 1 : -1)
+      ret << ListRecord.new(list.id, list.name, list.description, list.points, list.user.username, words.count, first_words, vote)
     end
     ret
   end
 end
 
 class ListRecord
-  attr_accessor :id, :name, :description, :points, :author, :count, :first_words
+  attr_accessor :id, :name, :description, :points, :author, :count, :first_words, :vote
   
-  def initialize (id, name, description, points, author, count, first_words)
+  def initialize (id, name, description, points, author, count, first_words, vote)
     @id = id; @name = name; @description = description; @points = points; @points = points
-    @author = author; @count = count; @first_words = first_words
+    @author = author; @count = count; @first_words = first_words; @vote = vote
   end
 end

@@ -1,61 +1,72 @@
 <script>
   $(function() {
     var word_data = <%= raw @word_data.to_json %>;
-  }
+
+    $("a[data-id]").click(function() {
+      var id = $(this).data("id");
+      show_full_def(id);
+    });
+  });
 </script>
 
-<div class="bigheader"><%=  @list.name %></div>
+<div id="list_div" class="list_box">
+  <div class="list_votes">
+    <a id="upvote_<%= @list.id %>" href="javascript:void(0)" onclick="process_list_vote(<%= @list.id %>, 'up')" <%= "style=visibility:hidden" if @list.vote == 1 %>>+</a>
+    <br>
+    <span id="points_<%= @list.id %>"><%= @list.points %></span>
+    <br>
+    <a id="downvote_<%= @list.id %>" href="javascript:void(0)" onclick="process_list_vote(<%= @list.id %>, 'down')" <%= "style=visibility:hidden" if @list.vote == -1 %>>-</a>
+  </div>
+  <div class="list_info">
+    <span class="list_title"><%= @list.name %></span>
+    <br>
+    <span class="list_ln2"><%= link_to @list.author, user_path(@list.author) %> - <%= pluralize(@list.count, 'word') %></span>
+    <br>
+    <%= @list.description %>
+  </div>
 
-<br>
-
-<div id="add_word_box">
-  <div>
-    <form action='/list/<%= @list.id %>/new' method='post'>
+  <div id="buttons_row">
+    <div id="not_a_word" class="error_message"><%= flash[:notice] || '' %></div>
+    <form id="add_word_box" action='/list/<%= @list.id %>/new' method='post'>
       <%= text_field_tag 'word', '', placeholder: 'word', size: 20, maxlength: 255 %>
       <input type="submit" value="Add Word">
     </form>
+    |
+    <form id="start_quiz_box" action='/list/<%= @list.id %>/quiz' method='post'>
+      <input type="button" value="Normal Quiz"><input type="button" value="Reverse Quiz">
+    </form>
   </div>
-  <div id="not_a_word" class="error_message"><%= flash[:notice] || '' %></div>
+
+  <div id="words">
+    <table id="word_list" class="data_table">
+    <tr>
+      <th>Word</th>
+      <th>Definition</th>
+      <th>Action</th>
+    </tr>
+    <% @word_data.each do |id, val| %>
+      <tr id="word_<%= id %>">
+	<td><b><a href="javascript:void(0)" data-id="<%= id %>"><%= val[:word] %></a></b></td>
+	<td>
+	  <% if val[:definitions].size == 0 %>
+	    <i>No definition specified.</i>
+	  <% else val[:definitions].each_with_index do |defi, i| %>
+	    <%= raw('<br>') if i > 0 %>
+	    <%= raw('<b>') + (i+1).to_s + raw('.</b> ') if val[:definitions].size > 1 %>
+	    <span title="<%= defi[:definition] %>"><%= defi[:definition].truncate 100 %></span> <!--<%= link_to '+', def_vote_path(@list.id, defi[:id]) %>-->
+	  <% end end %>
+	</td>
+	<td width="80"><% if @logged_uname == @list.author %><a href="javascript:void(0)" onclick="edit_word(<%= @list.id %>, <%= id %>)">Edit</a> | 
+                                                             <a href="javascript:void(0)" onclick="delete_word(<%= @list.id %>, <%= id %>)">Delete</a><% end %></td>
+      </tr>
+    <% end %>
+    </table>    
+  </div>
+
+  <div id="add_words_box">
+    <form action='/list/<%= @list.id %>/new_multiple' method='post'>
+      <%= text_area_tag 'words', '', rows: 3, cols: 50 %><br>
+      <input type="submit" value="Add Words">
+    </form>
+  </div>
 </div>
-
-<div id="start_quiz_box">
-  <form action='/list/<%= @list.id %>/quiz' method='post'>
-    <%= text_field_tag 'questions', '', placeholder: '#Ques.', size: 20, maxlength: 3 %>
-    <input type="button" value="Normal Quiz"><input type="button" value="Reverse Quiz">
-  </form>
-</div>
-
-<br><br>
-
-<table id="word_list" class="data_table">
-<tr>
-  <th>Word</th>
-  <th>Definition</th>
-  <th>Action</th>
-</tr>
-<% @word_data.each do |id, val| %>
-  <tr id="word_<%= id %>">
-    <td><%= val[:word] %></a></td>
-    <td>
-      <% if val[:definitions].size == 0 %>
-	<i>No definition specified.</i>
-      <% else val[:definitions].each_with_index do |defi, i| %>
-	<%= raw('<br>') if i > 0 %>
-	<%= raw('<b>') + (i+1).to_s + raw('.</b> ') if val[:definitions].size > 1 %>
-	<span title="<%= defi %>"><%= defi.truncate 100 %></span>
-      <% end end %>
-    </td>
-    <td width="80"><a href="#" onclick="edit_word(<%= @list.id %>, <%= id %>)">Edit</a> | <a href="#" onclick="delete_word(<%= @list.id %>, <%= id %>)">Delete</a></td>
-  </tr>
-<% end %>
-</table>
-
-<br>
-
-<div id="add_words_box">
-  <form action='/list/<%= @list.id %>/new_multiple' method='post'>
-    <%= text_area_tag 'words', '', rows: 3, cols: 50 %><br>
-    <input type="submit" value="Add Words">
-  </form>
-</div>
-

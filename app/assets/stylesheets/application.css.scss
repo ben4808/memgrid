@@ -67,7 +67,7 @@ body {
   width: 100%;
   float: left;
   background-color: #DDD;
-  margin: 0 0 10px 0;
+  margin: 0;
   padding: 0;
   list-style: none;
 
@@ -86,6 +86,7 @@ body {
 }
 
 #content_area {
+  clear: both;
   background-color: white;
   padding: 10px;
 }

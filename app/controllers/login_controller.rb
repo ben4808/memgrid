@@ -32,8 +32,7 @@ class LoginController < ApplicationController
     cookies[:uid] = user.first.id
     cookies[:uname] = user.first.username
     set_login_info
-    #redirect_to user_path(@logged_uid)
-    redirect_to browse_path
+    redirect_to your_path
   end
 
   def register
@@ -50,7 +49,7 @@ class LoginController < ApplicationController
     cookies[:uid] = user.id
     cookies[:uname] = user.username
     set_login_info
-    redirect_to user_path(@logged_uid)
+    redirect_to your_path
   end
 
   def logout

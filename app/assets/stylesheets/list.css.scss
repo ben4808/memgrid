@@ -2,23 +2,19 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-#add_word_box {
-  float: left;
-}
-
-#start_quiz_box {
-  float: left;
-  margin-left: 25px;
+#add_word_box , #start_quiz_box {
+  display: inline;
 }
 
 #word_list {
-  clear: both;
-
+  margin: 10px;
+  background-color: white;
+  border: 1px solid black;
   td {
     text-align: left;
   }
 }
 
-#add_words_box {
-  
+#add_words_box, #buttons_row {
+  margin: 10px;
 }

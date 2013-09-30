@@ -11,6 +11,8 @@ class ApplicationController < ActionController::Base
       @logged_uname = cookies[:uname]
     else
       @logged_in = false
+      @logged_uid = 0
+      @logged_uname = ''
     end
   end
 

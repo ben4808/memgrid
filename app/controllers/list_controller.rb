@@ -1,6 +1,7 @@
+require_relative 'browse_controller.rb'
+
 class ListController < ApplicationController
   before_filter :set_login_info
-  before_filter :redirect_if_not_logged
 
   before_filter :verify_word_data, only: [:new]
   def verify_word_data
@@ -15,14 +16,16 @@ class ListController < ApplicationController
 
   def index
     id = params[:id]
-    @error_message = (params.has_key?(:error) ? get_error_message(params[:error]) : "")
-    @list = List.where(id: id).first
+    list = List.find(id)
+    vote_res = @logged_in ? ListVote.where("user_id=#{@logged_uid} and list_id=#{list.id}").first : nil
+    vote = vote_res.nil? ? 0 : (vote_res.is_up ? 1 : -1)
+    words = list.words.order(:word)
+    @list = BrowseController::ListRecord.new(list.id, list.name, list.description, list.points, list.user.username, words.count, [], vote)
 
-    words = @list.words.order(:word)
     @word_data = {}
     words.each do |word|
-      lw = word.list_words.where(list_id: @list.id).first
-      @word_data[word.id] = {word: word.word, definitions: lw.listword_defs.map {|defi| defi.definition} }
+      lw = word.list_words.where(list_id: id).first
+      @word_data[word.id] = {word: word.word, definitions: lw.listword_defs.map {|defi| {id: defi.id, definition: defi.definition} } }
     end
   end
 
@@ -33,7 +36,7 @@ class ListController < ApplicationController
     word = word.gsub(/[^\w -]/, '')
     add_word(id, word)
  
-    redirect_to "/list/#{id}", notice: get_error_message(@error_no)
+    redirect_to list_path(id), notice: get_error_message(@error_no)
   end
 
   def new_multiple
@@ -46,7 +49,7 @@ class ListController < ApplicationController
       add_word(id, word)
     end
     
-    redirect_to "/list/#{id}"
+    redirect_to list_path(id)
   end
 
   def edit
@@ -77,6 +80,12 @@ class ListController < ApplicationController
     render nothing: true
   end
 
+  def full_def
+    id = params[:id]
+    @word = Word.find(id)
+    render layout: false
+  end
+  
   def add_word(list_id, word)
     word_data = Word.where(:word => word).first
 
@@ -177,3 +186,4 @@ class ListController < ApplicationController
     return ""
   end
 end
+

@@ -3,23 +3,27 @@
     <div class="error_message"><%= flash[:notice] %></div>
     <%= form_tag browse_new_path %>
       <%= text_field_tag 'new_list_name', nil, placeholder: 'Name', size: 15, maxlength: 255 %> 
-      <label><%= check_box_tag 'new_list_public', nil, checked: true %> Public</label><br>
+      <label><%= check_box_tag 'new_list_public', nil, true %> Public</label><br>
       <%= text_field_tag 'new_list_desc', nil, placeholder: 'Description', size: 75, maxlength: 255 %><br>
       <%= submit_tag 'New List' %>
     </form>
-    </div>
+  </div>
   <br>
 <% end %>
 
 <% @lists.each do |list| %>
   <div id="list_<%= list.id %>" class="list_box">
     <div class="list_votes">
-      <%= link_to '+', '#' %><br><%= list.points %><br><%= link_to '-', '#' %>
+      <a id="upvote_<%= list.id %>" href="javascript:void(0)" onclick="process_list_vote(<%= list.id %>, 'up')" <%= "style=visibility:hidden" if list.vote == 1 %>>+</a>
+      <br>
+      <span id="points_<%= list.id %>"><%= list.points %></span>
+      <br>
+      <a id="downvote_<%= list.id %>" href="javascript:void(0)" onclick="process_list_vote(<%= list.id %>, 'down')" <%= "style=visibility:hidden" if list.vote == -1 %>>-</a>
     </div>
     <div class="list_info">
       <span class="list_title"><%= link_to list.name, list_path(list.id) %></span> 
       <% if @query_type == 'your' %>
-	(<a href="javascript:void(0)" onclick="edit_list(<%= list.id %>, '<%= list.name %>', '<%= list.description %>')">Edit</a> | <a href="javascript:void(0)" onclick="delete_list(<%= list.id %>)">Delete</a>)
+	(<a href="javascript:void(0)" onclick="edit_list(<%= list.id %>)">Edit</a> | <%= link_to 'Delete', delete_list_path(list.id), confirm: 'Are you sure?' %>)
       <% end %>
       <br>
       <span class="list_ln2"><%= link_to list.author, user_path(list.author) %> - <%= pluralize(list.count, 'word') %>
