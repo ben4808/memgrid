@@ -22,7 +22,8 @@ Memgrid::Application.routes.draw do
   get '/list/:id/vote/:did', to: 'list#vote', as: 'def_vote'
   post '/list/:id/new', to: 'list#new'
   post '/list/:id/new_multiple' , to: 'list#new_multiple'
-  post '/list/:id/edit/:wid', to: 'list#edit'
+  get '/list/:id/edit_box/:wid', to: 'list#edit_box', as: 'edit_def_box'
+  post '/list/:id/edit/:wid', to: 'list#edit', as: 'edit_def'
   get '/list/:id/delete/:wid', to: 'list#delete'
   get '/full_def/:id', to: 'list#full_def'
 

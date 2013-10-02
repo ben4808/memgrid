@@ -1,0 +1,8 @@
+<% if @defs.size == 0 %>
+  <i>No definition specified.</i>
+<% else @defs.each_with_index do |defi, i| %>
+  <%= raw('<br>') if i > 0 %>
+  <%= raw('<b>') + (i+1).to_s + raw('.</b> ') if @defs.size > 1 %>
+  <span title="<%= defi.definition %>"><%= defi.definition.truncate 100 %></span>
+<% end end %>
+

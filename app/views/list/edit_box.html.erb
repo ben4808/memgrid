@@ -1,0 +1,9 @@
+<div class="edit_box">
+  <form id="edit_def_form">
+    <% @defs.each_with_index do |defi, i| %>
+      <%= text_field_tag "def_#{i}", defi.definition, size: 60, maxlength: 255 %><br>
+    <% end %>
+    <a href="javascript:void(0)" id="add_link_<%= @word_id %>" onclick="add_def_line(<%= @word_id %>)">Add Definition</a><br>
+    <%= button_to_function 'Save', "submit_edit(#{@list_id}, #{@word_id})" %> <%= button_to_function "Cancel", "cancel_def_edit(#{@word_id})" %>
+  </form>
+</div>

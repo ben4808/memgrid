@@ -47,7 +47,7 @@
     <% @word_data.each do |id, val| %>
       <tr id="word_<%= id %>">
 	<td><b><a href="javascript:void(0)" data-id="<%= id %>"><%= val[:word] %></a></b></td>
-	<td>
+	<td id="def_td_<%= id %>">
 	  <% if val[:definitions].size == 0 %>
 	    <i>No definition specified.</i>
 	  <% else val[:definitions].each_with_index do |defi, i| %>

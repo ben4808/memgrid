@@ -17,16 +17,17 @@ class ListController < ApplicationController
   def index
     id = params[:id]
     list = List.find(id)
+    list_words = list.list_words.includes(:word, :listword_defs)
     vote_res = @logged_in ? ListVote.where("user_id=#{@logged_uid} and list_id=#{list.id}").first : nil
     vote = vote_res.nil? ? 0 : (vote_res.is_up ? 1 : -1)
-    words = list.words.order(:word)
-    @list = BrowseController::ListRecord.new(list.id, list.name, list.description, list.points, list.user.username, words.count, [], vote)
+    @list = BrowseController::ListRecord.new(list.id, list.name, list.description, list.points, list.user.username, list_words.count, [], vote)
 
     @word_data = {}
-    words.each do |word|
-      lw = word.list_words.where(list_id: id).first
+    list_words.each do |lw|
+      word = lw.word
       @word_data[word.id] = {word: word.word, definitions: lw.listword_defs.map {|defi| {id: defi.id, definition: defi.definition} } }
     end
+    @word_data = @word_data.sort_by {|k, v| v[:word]}
   end
 
   def new
@@ -52,6 +53,16 @@ class ListController < ApplicationController
     redirect_to list_path(id)
   end
 
+  def edit_box
+    @list_id = params[:id]
+    @word_id = params[:wid]
+
+    lw = ListWord.where(list_id: @list_id, word_id: @word_id).first
+    @defs = ListwordDef.where(list_word_id: lw.id)
+
+    render layout: false
+  end
+
   def edit
     id = params[:id]
     word_id = params[:wid]
@@ -60,14 +71,16 @@ class ListController < ApplicationController
     ListwordDef.where(list_word_id: lw.id).destroy_all
 
     i = 0
+    @defs = []
+    puts params.to_s
     while params.has_key? "def_#{i}".to_sym
       defi = params["def_#{i}".to_sym].strip
       i += 1
       next if defi.length == 0
-      ListwordDef.create(list_word_id: lw.id, definition: defi)
+      @defs << ListwordDef.create(list_word_id: lw.id, definition: defi)
     end
 
-    render nothing: true 
+    render :new_defs, layout: false 
   end
 
   def delete
@@ -112,7 +125,6 @@ class ListController < ApplicationController
   
   def word_data_to_html(word, data)
     if data.css('def').length == 0
-      @error_no = 1
       return ''
     end
 
