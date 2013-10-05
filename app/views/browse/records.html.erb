@@ -14,11 +14,11 @@
 <% @lists.each do |list| %>
   <div id="list_<%= list.id %>" class="list_box">
     <div class="list_votes">
-      <a id="upvote_<%= list.id %>" href="javascript:void(0)" onclick="process_list_vote(<%= list.id %>, 'up')" <%= "style=visibility:hidden" if list.vote == 1 %>>+</a>
+      <a id="upvote_<%= list.id %>" href="javascript:void(0)" onclick="process_list_vote(<%= list.id %>, 'up')" <%= "style=visibility:hidden" if (!@logged_in || list.vote == 1) %>>+</a>
       <br>
       <span id="points_<%= list.id %>"><%= list.points %></span>
       <br>
-      <a id="downvote_<%= list.id %>" href="javascript:void(0)" onclick="process_list_vote(<%= list.id %>, 'down')" <%= "style=visibility:hidden" if list.vote == -1 %>>-</a>
+      <a id="downvote_<%= list.id %>" href="javascript:void(0)" onclick="process_list_vote(<%= list.id %>, 'down')" <%= "style=visibility:hidden" if (!@logged_in || list.vote == -1) %>>-</a>
     </div>
     <div class="list_info">
       <span class="list_title"><%= link_to list.name, list_path(list.id) %></span> 

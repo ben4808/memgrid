@@ -1,4 +1,5 @@
 Memgrid::Application.routes.draw do
+  get "quiz/index"
   root to: 'home#index'
 
   get '/login', to: 'login#index'
@@ -27,8 +28,8 @@ Memgrid::Application.routes.draw do
   get '/list/:id/delete/:wid', to: 'list#delete'
   get '/full_def/:id', to: 'list#full_def'
 
-  get '/quiz/:id', to: 'quiz#normal'
-  get '/quiz/:id/reverse', to: 'quiz#reverse'
+  get '/quiz/:id', to: 'quiz#normal', as: 'normal_quiz'
+  get '/quiz/:id/reverse', to: 'quiz#reverse', as: 'reverse_quiz'
   post '/quiz/:qid/submit', to: 'quiz#submit'
   post '/quiz/:qid/next', to: 'quiz#next'
 

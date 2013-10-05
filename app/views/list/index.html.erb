@@ -11,11 +11,11 @@
 
 <div id="list_div" class="list_box">
   <div class="list_votes">
-    <a id="upvote_<%= @list.id %>" href="javascript:void(0)" onclick="process_list_vote(<%= @list.id %>, 'up')" <%= "style=visibility:hidden" if @list.vote == 1 %>>+</a>
+    <a id="upvote_<%= @list.id %>" href="javascript:void(0)" onclick="process_list_vote(<%= @list.id %>, 'up')" <%= "style=visibility:hidden" if (!@logged_in || @list.vote == 1) %>>+</a>
     <br>
     <span id="points_<%= @list.id %>"><%= @list.points %></span>
     <br>
-    <a id="downvote_<%= @list.id %>" href="javascript:void(0)" onclick="process_list_vote(<%= @list.id %>, 'down')" <%= "style=visibility:hidden" if @list.vote == -1 %>>-</a>
+    <a id="downvote_<%= @list.id %>" href="javascript:void(0)" onclick="process_list_vote(<%= @list.id %>, 'down')" <%= "style=visibility:hidden" if (!@logged_in || @list.vote == -1) %>>-</a>
   </div>
   <div class="list_info">
     <span class="list_title"><%= @list.name %></span>
@@ -32,9 +32,9 @@
       <input type="submit" value="Add Word">
     </form>
     |
-    <form id="start_quiz_box" action='/list/<%= @list.id %>/quiz' method='post'>
-      <input type="button" value="Normal Quiz"><input type="button" value="Reverse Quiz">
-    </form>
+    <%= link_to 'Normal Quiz', normal_quiz_path(@list.id) %>
+    |
+    <%= link_to 'Reverse Quiz', reverse_quiz_path(@list.id) %>
   </div>
 
   <div id="words">
