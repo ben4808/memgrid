@@ -7,6 +7,12 @@
 }
 
 #question_div {
+  width: 200px;
+  float: left;
+}
+
+#question_div_rev {
+  width: 600px;
   float: left;
 }
 
@@ -14,7 +20,11 @@
   margin-left: 200px;
 }
 
-#word_d, #definition, .quiz_definition {
+#answer_div_rev {
+  margin-left: 600px;
+}
+
+#ques_d, #ans_d, .quiz_ans {
   font-size: 16px;
   margin-top: 5px;
 }
@@ -25,10 +35,10 @@
   font-weight: bold;
 }
 
-.quiz_definition {
+.quiz_ans {
   background-color: #FFA;
 }
 
-.quiz_definition:hover {
+.quiz_ans:hover {
   background-color: #FF6;
 }

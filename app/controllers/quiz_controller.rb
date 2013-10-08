@@ -1,11 +1,7 @@
 class QuizController < ApplicationController
-  def normal
+  def index
     id = params[:id]
-    @word_data = get_word_data_in_list(id).shuffle
-  end
-
-  def reverse
-    id = params[:id]
+    @mode = params[:mode]
     @word_data = get_word_data_in_list(id).shuffle
   end
 

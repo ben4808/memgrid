@@ -17,7 +17,7 @@ class ApplicationController < ActionController::Base
   end
 
   def redirect_if_logged_in
-    redirect_to user_path(@logged_uid) if @logged_in
+    redirect_to your_path if @logged_in
   end
 
   def redirect_if_not_logged_in

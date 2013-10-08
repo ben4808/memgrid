@@ -98,6 +98,19 @@ class ListController < ApplicationController
     @word = Word.find(id)
     render layout: false
   end
+
+  def favorite
+    id = params[:id]
+    favorite = Favorite.where(user_id: @logged_uid, list_id: id).first
+    Favorite.create(user_id: @logged_uid, list_id: id) if (favorite.nil?)
+    render nothing: true
+  end
+
+  def unfavorite
+    id = params[:id]
+    Favorite.where(user_id: @logged_uid, list_id: id).destroy_all
+    renirect_to favorites_path
+  end
   
   def add_word(list_id, word)
     word_data = Word.where(:word => word).first

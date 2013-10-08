@@ -26,12 +26,11 @@ Memgrid::Application.routes.draw do
   get '/list/:id/edit_box/:wid', to: 'list#edit_box', as: 'edit_def_box'
   post '/list/:id/edit/:wid', to: 'list#edit', as: 'edit_def'
   get '/list/:id/delete/:wid', to: 'list#delete'
+  get '/list/:id/favorite', to: 'list#favorite', as: 'favorite'
+  get '/list/:id/unfavorite', to: 'list#unfavorite', as: 'unfavorite'
   get '/full_def/:id', to: 'list#full_def'
 
-  get '/quiz/:id', to: 'quiz#normal', as: 'normal_quiz'
-  get '/quiz/:id/reverse', to: 'quiz#reverse', as: 'reverse_quiz'
-  post '/quiz/:qid/submit', to: 'quiz#submit'
-  post '/quiz/:qid/next', to: 'quiz#next'
+  get '/quiz/:id/:mode', to: 'quiz#index', as: 'quiz'
 
   get '/dump_words', to: 'dump_words#index'
   get '/load_words', to: 'load_words#index'

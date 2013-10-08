@@ -32,9 +32,13 @@
       <input type="submit" value="Add Word">
     </form>
     |
-    <%= link_to 'Normal Quiz', normal_quiz_path(@list.id) %>
+    <%= link_to 'Normal Quiz', quiz_path(@list.id, 'normal') %>
     |
-    <%= link_to 'Reverse Quiz', reverse_quiz_path(@list.id) %>
+    <%= link_to 'Reverse Quiz', quiz_path(@list.id, 'reverse') %>
+    <% if @logged_in %>
+    |
+    <a href="javascript:void(0)" onclick="favorite(<%= @list.id %>)">Add to Favorites</a>
+    <% end %>
   </div>
 
   <div id="words">

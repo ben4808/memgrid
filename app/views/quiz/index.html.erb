@@ -1,0 +1,37 @@
+<script>
+$(function() {
+  var word_data = <%= raw @word_data.to_json %>;
+  initialize_quiz(word_data, '<%= @mode %>');
+});
+</script>
+
+<% if (@word_data.length < 4) %>
+SORRY! This list must have at least 4 defined words in order to generate a quiz.
+<% else %>
+
+<div class="list_title"><%= @mode.titleize %> Quiz - <%= @list.name %></div>
+
+<div id="quiz_box" class="list_box">
+  <div id="<%=  @mode == 'normal' ? 'question_div' : 'question_div_rev' %>">
+    <div class="quiz_header"><%= @mode == 'normal' ? 'Word' : 'Definition' %></div>
+    <div id="ques_d"></div>
+  </div>
+
+  <div id="<%=  @mode == 'normal' ? 'answer_div' : 'answer_div_rev' %>">
+    <div class="quiz_header"><%= @mode == 'normal' ? 'Definition' : 'Word' %></div>
+    <div id="ans_d"></div>
+  </div>
+</div>
+<br>
+<div class="list_title" id="correct_notify"></div>
+<div id="status"></div>
+<br>
+<span class="list_title">Incorrect Responses</span>
+<table id="incorrect" class="data_table">
+  <tr>
+    <th><%= @mode == 'normal' ? 'Word' : 'Definition' %></th>
+    <th><%= @mode == 'normal' ? 'Definition' : 'Word' %></th>
+  </tr>
+</table>
+
+<% end %>

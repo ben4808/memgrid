@@ -25,6 +25,9 @@
       <% if @query_type == 'your' %>
 	(<a href="javascript:void(0)" onclick="edit_list(<%= list.id %>)">Edit</a> | <%= link_to 'Delete', delete_list_path(list.id), confirm: 'Are you sure?' %>)
       <% end %>
+      <% if @query_type == 'favorites' %>
+        (<%= link_to 'Remove from Favorites', unfavorite_path(list.id), confirm: 'Are you sure?' %>)
+      <% end %>
       <br>
       <span class="list_ln2"><%= link_to list.author, user_path(list.author) %> - <%= pluralize(list.count, 'word') %>
 	<%= " - (" + list.first_words.join(', ') + (list.count > 3 ? ', ...' : '') + ')' if list.count > 0 %></span><br>

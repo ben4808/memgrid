@@ -36,3 +36,10 @@ window.submit_edit = (list_id, word_id) ->
 window.cancel_def_edit = (word_id) ->
   $("#def_td_#{word_id} .edit_box").remove()
   return
+
+window.favorite = (list_id) ->
+  $.get("/list/#{list_id}/favorite", (data) ->
+    alert("List added to your favorites list.")
+    return
+  )
+  return

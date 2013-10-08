@@ -5,70 +5,98 @@
 # global to store word data for the quiz
 word_data = []
 cur_index = 0
-cur_word = ""
-cur_def = ""
+cur_ques = ""
+cur_ans = ""
 cur_pos = -1
 correct_count = 0
+ques_count = 0
+num_questions = 0
+is_normal = true
 
-window.initialize_quiz = (data) ->
+window.initialize_quiz = (data, mode) ->
   word_data = data
   cur_index = 0
-  cur_word = ""
-  cur_def = ""
+  cur_ques = ""
+  cur_ans = ""
   cur_pos = -1
   correct_count = 0
+  ques_count = 0
+  is_normal = (mode == 'normal')
+
+  if is_normal
+    num_questions = word_data.length
+  else
+    # transform word_data array to flatten out the definitions so each definition is used
+    reverse_index = []
+    reverse_index.push {id: w.id, word: w.word, definition: d} for d in w.definitions for w in word_data
+    num_questions = reverse_index.length
+    word_data = reverse_index
 
   update_status()
   show_question()
   return
 
 show_question = ->
-  if (cur_index >= word_data.length)
-    $('#word_d').html('')
-    $('#definition').html('COMPLETE')
+  if (cur_index >= num_questions)
+    $('#ques_d').html('')
+    $('#ans_d').html('COMPLETE')
     return
 
-  cur_word = word_data[cur_index]
+  cur_ques = word_data[cur_index]
   cur_index += 1
 
-  word_html = "<b><a href='/full_def/#{cur_word.id}' target='_blank'>#{cur_word.word}</a></b>"
-  cur_def = random_element(cur_word.definitions)
+  if is_normal
+    ques_html = "<b><a href='/full_def/#{cur_ques.id}' target='_blank'>#{cur_ques.word}</a></b>"
+    cur_ans = random_element(cur_ques.definitions)
+  else
+    ques_html = cur_ques.definition
+    cur_ans = cur_ques.word
 
   i = 0
-  other_words = []
-  defs = []
-  while (i < 3)
-    my_word = null
+  other_ques = []
+  answers = []
+  while i < 3
+    my_ques = null
     loop
-      my_word = random_element(word_data)
-      break if my_word != cur_word && $.inArray(my_word, other_words) == -1
-    other_words.push(my_word)
-    defs.push(random_element(my_word.definitions))
+      my_ques = random_element(word_data)
+      break if my_ques != cur_ques && $.inArray(my_ques, other_ques) == -1
+    other_ques.push(my_ques)
+    answers.push(if is_normal then random_element(my_ques.definitions) else my_ques.word)
     i += 1
-  defs.push(cur_def)
-  shuffle(defs)
-  cur_pos = $.inArray(cur_def, defs)
+  answers.push(cur_ans)
+  shuffle(answers)
+  cur_pos = $.inArray(cur_ans, answers)
 
-  def_html = ""
+  ans_html = ""
   i = 0
   while (i < 4)
-    def_html += "<div data-i='#{i}' class='quiz_definition'>#{defs[i]}</div>"
+    ans_html += "<div data-i='#{i}' class='quiz_ans'>#{answers[i]}</div>"
     i += 1
 
-  $('#word_d').html(word_html)
-  $('#definition').html(def_html)
+  $('#ques_d').html(ques_html)
+  $('#ans_d').html(ans_html)
 
-  $('.quiz_definition').click ->
+  $('.quiz_ans').click ->
     process_answer($(this).data('i'))
     return
   return
 
 process_answer = (i) ->
-  correct_count += 1 if (i == cur_pos)
+  ques_count += 1
+  if i == cur_pos
+    correct_count += 1
+    $("#correct_notify").css('color', '#090').html('Correct')
+  else
+    $("#correct_notify").css('color', '#900').html('Incorrect')
 
   if (i != cur_pos)
-    html = "<tr><td><b><a href='/full_def/#{cur_word.id}' target='_blank'>#{cur_word.word}</a></b></td>"
-    html += "<td style='text-align:left'>#{cur_def}</td></tr>"
+    html = ""
+    if is_normal
+      html += "<tr><td><b><a href='/full_def/#{cur_ques.id}' target='_blank'>#{cur_ques.word}</a></b></td>"
+      html += "<td style='text-align:left'>#{cur_ans}</td></tr>"
+    else
+      html += "<tr><td style='text-align:left'>#{cur_ques.definition}</td>"
+      html += "<td><b><a href='/full_def/#{cur_ques.id}' target='_blank'>#{cur_ques.word}</a></b></td></tr>"
     $('#incorrect').append(html)
 
   update_status()
@@ -76,10 +104,10 @@ process_answer = (i) ->
   return
 
 update_status = ->
-  html = "<b>Words:</b> #{word_data.length}<br>"
+  html = "<b>Questions:</b> #{num_questions}<br>"
   pct = 0
-  pct = Math.floor(correct_count * 100 / cur_index) if cur_index > 0
-  html += "<b>Score:</b> #{correct_count} / #{cur_index} (#{pct}%)"
+  pct = Math.floor(correct_count * 100 / ques_count) if ques_count > 0
+  html += "<b>Score:</b> #{correct_count} / #{ques_count} (#{pct}%)"
   $('#status').html(html)
   return
 

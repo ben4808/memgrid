@@ -45,6 +45,7 @@ class BrowseController < ApplicationController
     @query_type = params[:type] || 'all'
     @user = params[:user] || @logged_uname
     @keyword = params[:keyword] || ''
+    puts "hi1"
  
     query = nil
     if @query_type == 'all'
@@ -55,17 +56,24 @@ class BrowseController < ApplicationController
     elsif @query_type == 'your'
       query = List.where("user_id=#{@logged_uid}").order('lower(name)')
     elsif @query_type == 'user'
-      uid = User.where(username: @user).first.id
+      uid = User.where(username: @user).first
+      if uid.nil?
+	render text: 'No results'
+	return
+      end
+      uid = uid.id
       query = List.where("user_id=#{uid}").where(:public => true).order('lower(name)')
     elsif @query_type == 'search'
       query = List.where("name like '%#{@keyword}%'").where(:public => true).order('points desc', 'lower(name)')
     end
 
+    puts "hi2"
     @total = query.count
     query = query.limit(10).offset(@offset)
     @count = @offset + query.count
     @lists = make_list_records(query)
 
+    puts "hi2"
     render layout: false
   end
   
