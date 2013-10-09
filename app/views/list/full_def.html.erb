@@ -1,6 +1,28 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<script src="/assets/jquery.js"></script>
+<script>
+$(function() {
+    alert("hi");
+});
+
+function load_vocab_defs(list_id, word_id) {
+  $.get("/list/" + list_id + "/load_vocab_defs/" + word_id, function(data) {
+    alert("Vocabulary.com definitions loaded. You'll have to refresh your list page to see them.");
+  });
+}
+</script>
+
+</head>
+
+<body>
 <%= raw @word.definition %>
 
 <br>
 <%= link_to 'Free Dictionary', "http://www.thefreedictionary.com/#{@word.word}" %><br>
 <%= link_to 'Wiktionary', "http://en.wiktionary.org/wiki/#{@word.word}" %><br>
-<%= link_to 'Vocabulary.com', "https://www.vocabulary.com/dictionary/#{@word.word}" %>
+<%= link_to 'Vocabulary.com', "https://www.vocabulary.com/dictionary/#{@word.word}" %> (<a href="#" onclick="load_vocab_defs(<%= @list_id %>, <%= @word.id %>)">Load Definitions</a>)
+</body>
+</html>

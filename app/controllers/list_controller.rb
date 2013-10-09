@@ -25,34 +25,19 @@ class ListController < ApplicationController
     @word_data = {}
     list_words.each do |lw|
       word = lw.word
-      @word_data[word.id] = {word: word.word, definitions: lw.listword_defs.map {|defi| {id: defi.id, definition: defi.definition} } }
+      @word_data[word.id] = {word: word.word, definitions: def_list_to_html(lw.listword_defs) }
     end
-    @word_data = @word_data.sort_by {|k, v| v[:word]}
   end
 
   def new
-    @error_no = 0
     id = params[:id]
     word = params[:word].strip
     word = word.gsub(/[^\w -]/, '')
-    add_word(id, word)
+    res = add_word(id, word)
  
-    redirect_to list_path(id), notice: get_error_message(@error_no)
+    render text: res.to_json
   end
-
-  def new_multiple
-    id = params[:id]
-    words = params[:words].split(/\s+/)
-    words.each do |word|
-      word = word.gsub(/[^\w_-]/, '').gsub(/_/, ' ')
-      next if(word.length == 0)
-      @error_no = 0
-      add_word(id, word)
-    end
-    
-    redirect_to list_path(id)
-  end
-
+  
   def edit_box
     @list_id = params[:id]
     @word_id = params[:wid]
@@ -71,16 +56,16 @@ class ListController < ApplicationController
     ListwordDef.where(list_word_id: lw.id).destroy_all
 
     i = 0
-    @defs = []
+    defs = []
     puts params.to_s
     while params.has_key? "def_#{i}".to_sym
       defi = params["def_#{i}".to_sym].strip
       i += 1
       next if defi.length == 0
-      @defs << ListwordDef.create(list_word_id: lw.id, definition: defi)
+      defs << ListwordDef.create(list_word_id: lw.id, definition: defi)
     end
 
-    render :new_defs, layout: false 
+    render text: def_list_to_html(defs) 
   end
 
   def delete
@@ -94,8 +79,9 @@ class ListController < ApplicationController
   end
 
   def full_def
-    id = params[:id]
-    @word = Word.find(id)
+    @list_id = params[:id]
+    @word_id = params[:wid]
+    @word = Word.find(@word_id)
     render layout: false
   end
 
@@ -111,7 +97,35 @@ class ListController < ApplicationController
     Favorite.where(user_id: @logged_uid, list_id: id).destroy_all
     renirect_to favorites_path
   end
-  
+
+  def load_vocab_defs
+    id = params[:id]
+    word_id = params[:wid]
+    word = Word.find(word_id).word
+    puts "Word: #{word}"
+    data = Nokogiri::HTML(open("https://www.vocabulary.com/dictionary/#{URI::escape(word)}"))
+    list_word = ListWord.where(list_id: id, word_id: word_id).first
+    list_word.listword_defs.destroy_all
+    data.css('h3.definition').each do |node|
+      defi = node.children().last.text.strip
+      ListwordDef.create(list_word_id: list_word.id, definition: defi)
+    end
+    render nothing: true
+  end
+
+  def def_list_to_html (defs)
+    return "<i>No definition specified.</i>" if defs.length == 0
+    return "<span title='#{defs[0].definition}'>" + defs[0].definition.truncate(100) + "</span>" if defs.length == 1
+    
+    html = ""
+    defs.each_with_index do |defi, i|
+      d = defi.definition 
+      html += "<span title='#{d}'><b>#{i+1}.</b> " + d.truncate(100) + "</span>"
+      html += "<br>" if i < defs.length - 1
+    end
+    html
+  end
+
   def add_word(list_id, word)
     word_data = Word.where(:word => word).first
 
@@ -120,20 +134,16 @@ class ListController < ApplicationController
       #data = Nokogiri::XML(File.open('/home/zoonb/memgrid/public/the.xml'))
       data = Nokogiri::XML(open("http://www.dictionaryapi.com/api/v1/references/collegiate/xml/#{URI::escape(word)}?key=962712b3-cfd1-41ff-94a7-fa2e38584961"))
       full_def = word_data_to_html(word, data)
-      return if(@error_no != 0)
-
       first_def = first_definition(word, data)
       word_data = Word.create(word: word, first_def: first_def, definition: full_def)
     end
 
     existing_record = ListWord.where(:list_id => list_id, :word_id => word_data.id).first
-    if (existing_record)
-      @error_no = 2
-      return
-    end
+    return nil if (existing_record)
 
     list_word = ListWord.create(list_id: list_id, word_id: word_data.id)
-    ListwordDef.create(list_word_id: list_word.id, definition: word_data.first_def)
+    lwdef = ListwordDef.create(list_word_id: list_word.id, definition: word_data.first_def)
+    return {id: word_data.id, definition: def_list_to_html([lwdef])}
   end
   
   def word_data_to_html(word, data)
@@ -203,12 +213,6 @@ class ListController < ApplicationController
     end
     str = str.gsub(/<vi>.*?<\/vi>/, '').gsub(/<[^>]+?>/, '').gsub(/^ *:|:$/, '').gsub(/ \d$/, '')
     str
-  end
-
-  def get_error_message(error_no)
-    return "Word not found in dictionary." if error_no == 1
-    return "Word already in list." if error_no == 2
-    return ""
   end
 end
 

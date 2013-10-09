@@ -9,7 +9,7 @@ $(function() {
 SORRY! This list must have at least 4 defined words in order to generate a quiz.
 <% else %>
 
-<div class="list_title"><%= @mode.titleize %> Quiz - <%= @list.name %></div>
+<div class="list_title"><%= @mode.titleize %> Quiz - <%= link_to @list.name, list_path(@list.id) %></div>
 
 <div id="quiz_box" class="list_box">
   <div id="<%=  @mode == 'normal' ? 'question_div' : 'question_div_rev' %>">

@@ -28,7 +28,8 @@ Memgrid::Application.routes.draw do
   get '/list/:id/delete/:wid', to: 'list#delete'
   get '/list/:id/favorite', to: 'list#favorite', as: 'favorite'
   get '/list/:id/unfavorite', to: 'list#unfavorite', as: 'unfavorite'
-  get '/full_def/:id', to: 'list#full_def'
+  get '/list/:id/load_vocab_defs/:wid', to: 'list#load_vocab_defs', as: 'load_vocab_defs'
+  get '/list/:id/full_def/:wid', to: 'list#full_def', as: 'full_def'
 
   get '/quiz/:id/:mode', to: 'quiz#index', as: 'quiz'
 
