@@ -16,7 +16,7 @@ window.show_full_def = (list_id, word_id) ->
   window.open("/list/#{list_id}/full_def/#{word_id}", '_blank', 'height=600,width=800,resizable=yes,scrollbars=yes,menubar=yes,toolbar=yes,status=yes')
 
 window.add_word = (list_id) ->
-  word = $('#word').val().replace /^\s+|\s+$/g, ""  
+  word = $('#word').val().replace(/^\s+|\s+$/g, "").toLowerCase()
   if word.length == 0
     $('#not_a_word').html('No word specified.')
     return
@@ -29,7 +29,7 @@ window.add_word_multiple = (list_id) ->
 
   for word in words
     w = word.replace(/[^\w_-]/, '')
-    w = w.replace(/_/, ' ')
+    w = w.replace(/_/, ' ').toLowerCase()
     add_word_helper(list_id, w)
   return
 

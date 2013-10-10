@@ -57,7 +57,6 @@ class ListController < ApplicationController
 
     i = 0
     defs = []
-    puts params.to_s
     while params.has_key? "def_#{i}".to_sym
       defi = params["def_#{i}".to_sym].strip
       i += 1
@@ -102,7 +101,6 @@ class ListController < ApplicationController
     id = params[:id]
     word_id = params[:wid]
     word = Word.find(word_id).word
-    puts "Word: #{word}"
     data = Nokogiri::HTML(open("https://www.vocabulary.com/dictionary/#{URI::escape(word)}"))
     list_word = ListWord.where(list_id: id, word_id: word_id).first
     list_word.listword_defs.destroy_all
@@ -127,6 +125,7 @@ class ListController < ApplicationController
   end
 
   def add_word(list_id, word)
+    word.downcase!
     word_data = Word.where(:word => word).first
 
     #if word does not exist in database, grab definition from Merriam-Webster
@@ -190,7 +189,6 @@ class ListController < ApplicationController
       end
       html += "<br><br>"
       html = html.gsub("\n", '')
-      puts html
     end
     html
   end

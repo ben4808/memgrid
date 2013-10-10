@@ -23,7 +23,7 @@
     <div class="list_info">
       <span class="list_title"><%= link_to list.name, list_path(list.id) %></span> 
       <% if @query_type == 'your' %>
-	(<a href="javascript:void(0)" onclick="edit_list(<%= list.id %>)">Edit</a> | <%= link_to 'Delete', delete_list_path(list.id), confirm: 'Are you sure?' %>)
+	(<a href="javascript:void(0)" onclick="edit_list(<%= list.id %>)">Edit</a> | <%= link_to 'Delete', delete_list_path(list.id), data: {confirm: 'Are you sure?'} %>)
       <% end %>
       <% if @query_type == 'favorites' %>
         (<%= link_to 'Remove from Favorites', unfavorite_path(list.id), confirm: 'Are you sure?' %>)

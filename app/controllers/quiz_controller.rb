@@ -13,7 +13,7 @@ class QuizController < ApplicationController
     list_words.each do |lw|
       word = lw.word
       defs = lw.listword_defs
-      data << {id: word.id, word: word.word, definitions: defs.map {|defi| defi.definition} } if defs.length > 0 && !defs[0].definition.strip.empty?
+      data << {id: word.id, word: word.word, definitions: defs.map {|defi| defi.definition} } if (defs.length > 0 && defs[0].definition.strip.length > 0)
     end
     data
   end

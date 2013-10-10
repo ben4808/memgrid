@@ -1,7 +1,9 @@
 <script>
 $(function() {
+  <% if (@word_data.length >= 4) %>
   var word_data = <%= raw @word_data.to_json %>;
-  initialize_quiz(word_data, '<%= @mode %>');
+  initialize_quiz(<%= @list.id %>, word_data, '<%= @mode %>');
+  <% end %>
 });
 </script>
 

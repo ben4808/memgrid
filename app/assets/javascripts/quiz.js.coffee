@@ -12,8 +12,9 @@ correct_count = 0
 ques_count = 0
 num_questions = 0
 is_normal = true
+list_id = -1
 
-window.initialize_quiz = (data, mode) ->
+window.initialize_quiz = (list_i, data, mode) ->
   word_data = data
   cur_index = 0
   cur_ques = ""
@@ -22,6 +23,7 @@ window.initialize_quiz = (data, mode) ->
   correct_count = 0
   ques_count = 0
   is_normal = (mode == 'normal')
+  list_id = list_i
 
   if is_normal
     num_questions = word_data.length
@@ -46,7 +48,7 @@ show_question = ->
   cur_index += 1
 
   if is_normal
-    ques_html = "<b><a href='/full_def/#{cur_ques.id}' target='_blank'>#{cur_ques.word}</a></b>"
+    ques_html = "<b><a href='/list/#{list_id}/full_def/#{cur_ques.id}' target='_blank'>#{cur_ques.word}</a></b>"
     cur_ans = random_element(cur_ques.definitions)
   else
     ques_html = cur_ques.definition
@@ -92,11 +94,11 @@ process_answer = (i) ->
   if (i != cur_pos)
     html = ""
     if is_normal
-      html += "<tr><td><b><a href='/full_def/#{cur_ques.id}' target='_blank'>#{cur_ques.word}</a></b></td>"
+      html += "<tr><td><b><a href='/list/#{list_id}/full_def/#{cur_ques.id}' target='_blank'>#{cur_ques.word}</a></b></td>"
       html += "<td style='text-align:left'>#{cur_ans}</td></tr>"
     else
       html += "<tr><td style='text-align:left'>#{cur_ques.definition}</td>"
-      html += "<td><b><a href='/full_def/#{cur_ques.id}' target='_blank'>#{cur_ques.word}</a></b></td></tr>"
+      html += "<td><b><a href='/list/#{list_id}/full_def/#{cur_ques.id}' target='_blank'>#{cur_ques.word}</a></b></td></tr>"
     $('#incorrect').append(html)
 
   update_status()
