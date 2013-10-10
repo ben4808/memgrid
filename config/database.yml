@@ -23,8 +23,6 @@ test:
 
 production:
   adapter: postgresql
-  database: vocab_production
-  pool: 5
-  timeout: 5000
+  database: d5grtknupcjudl 
   username: ifewadzedbwlfc
   password: G-VZ5xUaG0NGOTJ8uEoZjohWQ4
