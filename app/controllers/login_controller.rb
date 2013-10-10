@@ -23,7 +23,7 @@ class LoginController < ApplicationController
     uname = params[:uname].strip
     passw = params[:passw].strip
 
-    user = User.where("username = '#{uname}' and password = '#{passw}'")
+    user = User.where("username = '#{uname}' and password = '#{hashPassword(passw)}'")
     if (user.length == 0)
       @error = "Login incorrect."
       render 'index' and return
@@ -45,7 +45,7 @@ class LoginController < ApplicationController
       render 'index' and return
     end
 
-    user = User.create(username: uname, password: passw)
+    user = User.create(username: uname, password: hashPassword(passw))
     cookies[:uid] = user.id
     cookies[:uname] = user.username
     set_login_info
@@ -57,5 +57,9 @@ class LoginController < ApplicationController
     cookies.delete :uname
     set_login_info
     redirect_to browse_path
+  end
+
+  def hashPassword(passw)
+    return Digest::SHA256.hexdigest('392bukwl22' + passw)
   end
 end
