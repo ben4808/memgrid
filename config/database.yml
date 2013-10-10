@@ -26,3 +26,5 @@ production:
   database: vocab_production
   pool: 5
   timeout: 5000
+  username: ifewadzedbwlfc
+  password: G-VZ5xUaG0NGOTJ8uEoZjohWQ4
