@@ -25,7 +25,7 @@
   <div id="buttons_row">
     <% if @logged_uname == @list.author %>
       <div id="not_a_word" class="error_message"><%= flash[:notice] || '' %></div>
-      <form id="add_word_box">
+      <form id="add_word_box" action="javascript:void(0)" method="post" onsubmit="add_word(<%= @list.id %>)">
 	<%= text_field_tag 'word', '', placeholder: 'word', size: 20, maxlength: 255 %>
 	<input type="button" value="Add Word" onclick="add_word(<%= @list.id %>)">
       </form>

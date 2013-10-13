@@ -44,7 +44,7 @@ ActiveRecord::Schema.define(version: 20130915025106) do
 
   create_table "listword_defs", force: true do |t|
     t.integer "list_word_id"
-    t.string  "definition"
+    t.text    "definition"
     t.integer "points"
   end
 
@@ -55,7 +55,7 @@ ActiveRecord::Schema.define(version: 20130915025106) do
 
   create_table "words", force: true do |t|
     t.string "word"
-    t.string "first_def"
+    t.text   "first_def"
     t.text   "definition"
   end
 

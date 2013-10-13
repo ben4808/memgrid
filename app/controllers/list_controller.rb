@@ -13,6 +13,7 @@ class ListController < ApplicationController
 
   require 'nokogiri'
   require 'open-uri'
+  require 'json'
 
   def index
     id = params[:id]
@@ -112,7 +113,7 @@ class ListController < ApplicationController
   end
 
   def def_list_to_html (defs)
-    return "<i>No definition specified.</i>" if defs.length == 0
+    return "<i>No definition found.</i>" if defs.length == 0
     return "<span title='#{defs[0].definition}'>" + defs[0].definition.truncate(100) + "</span>" if defs.length == 1
     
     html = ""
@@ -131,18 +132,75 @@ class ListController < ApplicationController
     #if word does not exist in database, grab definition from Merriam-Webster
     if(!word_data)
       #data = Nokogiri::XML(File.open('/home/zoonb/memgrid/public/the.xml'))
-      data = Nokogiri::XML(open("http://www.dictionaryapi.com/api/v1/references/collegiate/xml/#{URI::escape(word)}?key=962712b3-cfd1-41ff-94a7-fa2e38584961"))
-      full_def = word_data_to_html(word, data)
-      first_def = first_definition(word, data)
-      word_data = Word.create(word: word, first_def: first_def, definition: full_def)
+      #data = Nokogiri::XML(open("http://www.dictionaryapi.com/api/v1/references/collegiate/xml/#{URI::escape(word)}?key=962712b3-cfd1-41ff-94a7-fa2e38584961"))
+      #full_def = word_data_to_html(word, data)
+      #first_def = first_definition(word, data)
+      #word_data = Word.create(word: word, first_def: first_def, definition: full_def)
+
+      def_data = get_google_word(word)
+      word_data = Word.create(word: word, first_def: def_data[:short_defs].join('|'), definition: def_data[:html_def])
     end
 
     existing_record = ListWord.where(:list_id => list_id, :word_id => word_data.id).first
     return nil if (existing_record)
 
     list_word = ListWord.create(list_id: list_id, word_id: word_data.id)
-    lwdef = ListwordDef.create(list_word_id: list_word.id, definition: word_data.first_def)
-    return {id: word_data.id, definition: def_list_to_html([lwdef])}
+    lwdefs = []
+    word_data.first_def.split('|').each do |defi|
+      lwdefs << ListwordDef.create(list_word_id: list_word.id, definition: defi)
+    end
+    return {id: word_data.id, definition: def_list_to_html(lwdefs)}
+  end
+
+  def get_google_word(word)
+    short_defs = []
+    all_defs = []
+
+    data = JSON.parse(open("http://www.google.com/dictionary/json?callback=a&sl=en&tl=en&q=#{URI::escape(word)}").read.sub(/^[^{]*/, '').sub(/[^}]*$/, ''))
+    return {short_defs: [], html_def: "<b>#{word}</b>"} if !data.has_key?('primaries')
+    data["primaries"].each do |primary|
+      next if primary['type'] != 'headword'
+      next if (!primary.has_key?('terms') || !primary.has_key?('entries'))
+
+      cur_def = {pos: '', entries: []}
+
+      primary["terms"].each do |term|
+	next if !term.has_key?('labels')
+	term["labels"].each do |label|
+	  cur_def[:pos] = label["text"].downcase if label["title"] == "Part-of-speech"
+	end
+      end
+
+      primary['entries'].each do |entry|
+	next if (entry['type'] != 'meaning' || !entry.has_key?('terms'))
+	defi = {defi: entry['terms'][0]['text'].gsub(/x27/, "'").gsub(/x3c.*?x3e/, ''), examples: []}
+	if entry.has_key?('entries')
+	  entry['entries'].each do |e2|
+	    next if (e2['type'] != 'example' || !e2.has_key?('terms'))
+	    defi[:examples] << e2['terms'][0]['text'].gsub(/x3c.*?x3e/, '').gsub(/x27/, "'")
+	  end
+	end
+	cur_def[:entries] << defi
+      end
+
+      all_defs << cur_def
+    end
+
+    all_defs.each {|defi| short_defs << defi[:entries][0][:defi]}
+
+    html = "<b>#{word}</b>"
+    all_defs.each do |defi|
+      html += "<br><i>#{defi[:pos]}</i><br>"
+      defi[:entries].each_with_index do |entry, i|
+	html += "#{i+1}. #{entry[:defi]}"
+	entry[:examples].each do |ex|
+	  html += " &lt;<i>#{ex}</i>&gt;"
+	end
+	html += "<br>"
+      end
+    end
+    
+    {short_defs: short_defs, html_def: html}
   end
   
   def word_data_to_html(word, data)

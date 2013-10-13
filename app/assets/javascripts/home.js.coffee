@@ -3,6 +3,6 @@
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
 window.submit_search = ->
-  keyword = $('#search_keyword').val().replace(/^\s+|\s+$/g, "")
+  keyword = $('#search_keyword').val().replace(/^\s+|\s+$/g, "").toLowerCase()
   window.location = "/browse/search/#{keyword}" if keyword.length > 0
   return

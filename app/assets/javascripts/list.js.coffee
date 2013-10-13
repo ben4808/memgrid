@@ -22,6 +22,7 @@ window.add_word = (list_id) ->
     return
 
   add_word_helper(list_id, word)
+  $('#word').val("")
   return
 
 window.add_word_multiple = (list_id) ->
@@ -34,6 +35,9 @@ window.add_word_multiple = (list_id) ->
   return
 
 add_word_helper = (list_id, word) ->
+  for k, v of word_data
+    return if v.word == word
+
   cur_temp_id -= 1
   temp_id = cur_temp_id
   word_data[temp_id] = {word: word, definitions: "<i>Loading...</i>"}
@@ -104,7 +108,10 @@ window.refresh_word_list = (list_id) ->
     definition = word_obj.definitions
 
     html += "<tr id='word_#{id}'>"
-    html += "<td><b><a href='javascript:void(0)' data-id='#{id}'>#{word}</a></b></td>"
+    if id < 0
+      html += "<td><b>#{word}</b></td>"
+    else
+      html += "<td><b><a href='javascript:void(0)' data-id='#{id}'>#{word}</a></b></td>"
     html += "<td id='def_td_#{id}'>#{definition}</td>"
     html += "<td width='80'>"
     if show_actions

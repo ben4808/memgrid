@@ -45,7 +45,6 @@ class BrowseController < ApplicationController
     @query_type = params[:type] || 'all'
     @user = params[:user] || @logged_uname
     @keyword = params[:keyword] || ''
-    puts "hi1"
  
     query = nil
     if @query_type == 'all'
@@ -67,13 +66,11 @@ class BrowseController < ApplicationController
       query = List.where("name like '%#{@keyword}%'").where(:public => true).order('points desc', 'lower(name)')
     end
 
-    puts "hi2"
     @total = query.count
     query = query.limit(10).offset(@offset)
     @count = @offset + query.count
     @lists = make_list_records(query)
 
-    puts "hi2"
     render layout: false
   end
   
@@ -130,7 +127,7 @@ class BrowseController < ApplicationController
   def make_list_records (res)
     ret = []
     res.each do |list|
-      words = list.words
+      words = list.words.order(:word)
       first_words = []
       3.times { |i| first_words << words[i].word if words[i] }
       puts first_words.to_s
