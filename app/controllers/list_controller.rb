@@ -215,37 +215,39 @@ class ListController < ApplicationController
     all_defs = []
 
     data = JSON.parse(open("http://www.google.com/dictionary/json?callback=a&sl=en&tl=en&q=#{URI::escape(word)}").read.sub(/^[^{]*/, '').sub(/[^}]*$/, ''))
-    data["primaries"].each do |primary|
-      next if primary['type'] != 'headword'
-      next if (!primary.has_key?('terms') || !primary.has_key?('entries'))
+    if(data["primaries"])
+      data["primaries"].each do |primary|
+	next if primary['type'] != 'headword'
+	next if (!primary.has_key?('terms') || !primary.has_key?('entries'))
 
-      cur_def = {pos: '', entries: []}
+	cur_def = {pos: '', entries: []}
 
-      primary["terms"].each do |term|
-	next if !term.has_key?('labels')
-	term["labels"].each do |label|
-	  cur_def[:pos] = label["text"].downcase if label["title"] == "Part-of-speech"
-	end
-      end
-
-      next if cur_def[:pos].length == 0
-
-      primary['entries'].each do |entry|
-	next if (entry['type'] != 'meaning' || !entry.has_key?('terms'))
-	defi = {defi: entry['terms'][0]['text'].gsub(/x27/, "'").gsub(/x3c.*?x3e/, ''), examples: []}
-	if entry.has_key?('entries')
-	  entry['entries'].each do |e2|
-	    next if (e2['type'] != 'example' || !e2.has_key?('terms'))
-	    defi[:examples] << e2['terms'][0]['text'].gsub(/x3c.*?x3e/, '').gsub(/x27/, "'")
+	primary["terms"].each do |term|
+	  next if !term.has_key?('labels')
+	  term["labels"].each do |label|
+	    cur_def[:pos] = label["text"].downcase if label["title"] == "Part-of-speech"
 	  end
 	end
-	cur_def[:entries] << defi
+
+	next if cur_def[:pos].length == 0
+
+	primary['entries'].each do |entry|
+	  next if (entry['type'] != 'meaning' || !entry.has_key?('terms'))
+	  defi = {defi: entry['terms'][0]['text'].gsub(/x27/, "'").gsub(/x3c.*?x3e/, ''), examples: []}
+	  if entry.has_key?('entries')
+	    entry['entries'].each do |e2|
+	      next if (e2['type'] != 'example' || !e2.has_key?('terms'))
+	      defi[:examples] << e2['terms'][0]['text'].gsub(/x3c.*?x3e/, '').gsub(/x27/, "'")
+	    end
+	  end
+	  cur_def[:entries] << defi
+	end
+
+	all_defs << cur_def
       end
 
-      all_defs << cur_def
+      all_defs.each {|defi| short_defs << defi[:entries][0][:defi]}
     end
-
-    all_defs.each {|defi| short_defs << defi[:entries][0][:defi]}
 
     if short_defs.length == 0
       vocab_data = get_vocab_com_word(word)
