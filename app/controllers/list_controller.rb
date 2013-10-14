@@ -71,6 +71,7 @@ class ListController < ApplicationController
   def delete
     id = params[:id]
     word_id = params[:wid]
+    #Word.find(word_id).destroy
     lw = ListWord.where(:list_id => id, :word_id => word_id)
     ListwordDef.where(list_word_id: lw[0].id).destroy_all
     lw.destroy_all
@@ -96,6 +97,63 @@ class ListController < ApplicationController
     id = params[:id]
     Favorite.where(user_id: @logged_uid, list_id: id).destroy_all
     renirect_to favorites_path
+  end
+
+  def export
+    id = params[:id]
+    list = List.find(id)
+    list_words = list.list_words.includes(:word, :listword_defs)
+
+    @word_data = {}
+    list_words.each do |lw|
+      word = lw.word
+      @word_data[word.word] = lw.listword_defs.map {|d| d.definition}
+    end
+    @keys = @word_data.keys.sort
+
+    text = "Word,Definitions\n"
+    @keys.each do |k|
+      word = k
+      defs = @word_data[k].join(' | ')
+      text += "\"#{word}\",\"#{defs}\"\n"
+    end
+  
+    respond_to do |format|
+      format.csv { render text: text }
+    end
+  end
+
+  def import
+    id = params[:id]
+    list = List.find(id)
+    list_words = list.list_words.includes(:word, :listword_defs)
+    ids_hash = {}
+    list_words.each {|lw| ids_hash[lw.word.word] = lw.word.id}
+
+    lines = params[:file].read.split("\n")
+    lines.each_with_index do |line, i|
+      next if i == 0
+      tok = line.split(",")
+      word = tok.shift.strip.gsub(/^"|"$/, '')
+      defs = tok.join(',').gsub(/^"|"$/, '').split(' | ').map {|d| d.strip}
+
+      if ids_hash.has_key? word
+	lw = list_words.where(word_id: ids_hash[word]).first
+	lw.listword_defs.destroy_all
+	lw.destroy
+      end
+
+      word_rec = Word.where(word: word).first
+      if !word_rec
+	def_data = get_google_word(word)
+	word_rec = Word.create(word: word, first_def: def_data[:short_defs].join('|'), definition: def_data[:html_def])
+      end
+      lw = ListWord.create(list_id: id, word_id: word_rec.id)
+      defs.each do |d|
+	ListwordDef.create(list_word_id: lw.id, definition: d)
+      end
+    end
+    redirect_to list_path(id)
   end
 
   def load_vocab_defs
@@ -157,7 +215,6 @@ class ListController < ApplicationController
     all_defs = []
 
     data = JSON.parse(open("http://www.google.com/dictionary/json?callback=a&sl=en&tl=en&q=#{URI::escape(word)}").read.sub(/^[^{]*/, '').sub(/[^}]*$/, ''))
-    return {short_defs: [], html_def: "<b>#{word}</b>"} if !data.has_key?('primaries')
     data["primaries"].each do |primary|
       next if primary['type'] != 'headword'
       next if (!primary.has_key?('terms') || !primary.has_key?('entries'))
@@ -170,6 +227,8 @@ class ListController < ApplicationController
 	  cur_def[:pos] = label["text"].downcase if label["title"] == "Part-of-speech"
 	end
       end
+
+      next if cur_def[:pos].length == 0
 
       primary['entries'].each do |entry|
 	next if (entry['type'] != 'meaning' || !entry.has_key?('terms'))
@@ -188,6 +247,12 @@ class ListController < ApplicationController
 
     all_defs.each {|defi| short_defs << defi[:entries][0][:defi]}
 
+    if short_defs.length == 0
+      vocab_data = get_vocab_com_word(word)
+      short_defs = vocab_data[:short_defs]
+      all_defs = vocab_data[:all_defs]
+    end
+
     html = "<b>#{word}</b>"
     all_defs.each do |defi|
       html += "<br><i>#{defi[:pos]}</i><br>"
@@ -201,6 +266,39 @@ class ListController < ApplicationController
     end
     
     {short_defs: short_defs, html_def: html}
+  end
+
+  def get_vocab_com_word(word)
+    short_defs = []
+    all_defs = []
+
+    data = Nokogiri::HTML(open("https://www.vocabulary.com/dictionary/#{URI::escape(word)}"))
+    data.css('div.group').each do |group|
+      cur_def = {pos: '', entries: []}
+      group.css('h3.definition').each_with_index do |node, i|
+	pos = node.css('a.anchor').first.text.strip
+	defi = node.children().last.text.strip
+	short_defs << defi if i == 0
+	cur_def[:pos] = pos if cur_def[:pos].length == 0
+	cur_def[:entries] << {defi: defi, examples: []}
+      end
+      all_defs << cur_def
+    end
+    
+    {short_defs: short_defs, all_defs: all_defs}
+  end
+
+  def def_list_to_html (defs)
+    return "<i>No definition found.</i>" if defs.length == 0
+    return "<span title='#{defs[0].definition}'>" + defs[0].definition.truncate(100) + "</span>" if defs.length == 1
+
+    html = ""
+    defs.each_with_index do |defi, i|
+      d = defi.definition
+      html += "<span title='#{d}'><b>#{i+1}.</b> " + d.truncate(100) + "</span>"
+      html += "<br>" if i < defs.length - 1
+    end
+    html
   end
   
   def word_data_to_html(word, data)
