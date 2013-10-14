@@ -30,6 +30,8 @@ Memgrid::Application.routes.draw do
   get '/list/:id/unfavorite', to: 'list#unfavorite', as: 'unfavorite'
   get '/list/:id/load_vocab_defs/:wid', to: 'list#load_vocab_defs', as: 'load_vocab_defs'
   get '/list/:id/full_def/:wid', to: 'list#full_def', as: 'full_def'
+  get '/list/:id/export', to: 'list#export', as: 'export'
+  post '/list/:id/import', to: 'list#import', as: 'import'
 
   get '/quiz/:id/:mode', to: 'quiz#index', as: 'quiz'
 
