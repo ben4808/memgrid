@@ -1,6 +1,6 @@
 class BrowseController < ApplicationController
   before_filter :set_login_info
-  before_filter :redirect_if_not_logged_in, except: [:index, :search, :records]
+  before_filter :redirect_if_not_logged_in, except: [:index, :search, :records, :user]
 
   before_filter :setup_list_vars, only: [:index, :favorites, :your, :user]
   def setup_list_vars
