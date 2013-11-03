@@ -3,7 +3,7 @@
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
 # global to store word data for the quiz
-word_data = []
+word_data = [] # {id, word, definitions:[]}
 cur_index = 0
 cur_ques = ""
 cur_ans = ""
@@ -32,6 +32,7 @@ window.initialize_quiz = (list_i, data, mode) ->
     reverse_index = []
     reverse_index.push {id: w.id, word: w.word, definition: d} for d in w.definitions for w in word_data
     num_questions = reverse_index.length
+    shuffle(reverse_index)
     word_data = reverse_index
 
   update_status()
@@ -61,7 +62,10 @@ show_question = ->
     my_ques = null
     loop
       my_ques = random_element(word_data)
-      break if my_ques != cur_ques && $.inArray(my_ques, other_ques) == -1
+      collision = false
+      collision = true if my_ques.word == cur_ques.word
+      (collision = true if q.word == my_ques.word) for q in other_ques
+      break if !collision
     other_ques.push(my_ques)
     answers.push(if is_normal then random_element(my_ques.definitions) else my_ques.word)
     i += 1

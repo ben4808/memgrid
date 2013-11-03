@@ -83,6 +83,7 @@ class ListController < ApplicationController
     @list_id = params[:id]
     @word_id = params[:wid]
     @word = Word.find(@word_id)
+    @show_load_link = @logged_in && List.find(@list_id).user_id.to_s == @logged_uid.to_s
     render layout: false
   end
 

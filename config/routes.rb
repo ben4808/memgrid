@@ -35,8 +35,8 @@ Memgrid::Application.routes.draw do
 
   get '/quiz/:id/:mode', to: 'quiz#index', as: 'quiz'
 
-  get '/dump_words', to: 'dump_words#index'
-  get '/load_words', to: 'load_words#index'
+  #get '/dump_words', to: 'dump_words#index'
+  #get '/load_words', to: 'load_words#index'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

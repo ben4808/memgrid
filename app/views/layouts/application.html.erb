@@ -6,7 +6,7 @@
   <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
   <%= csrf_meta_tags %>
 </head>
-<body>
+<body onload="load_email">
   <div id="page_column">
 
   <div id="title_bar">
@@ -32,6 +32,10 @@
 
   <div id="content_area">
     <%= yield %>
+  </div>
+
+  <div id="footer">
+    &copy; <%= Time.now.year %> Ben Zoon | <a href="mailto:ben_zoon@hotmail.com">Contact</a>
   </div>
 
   </div>
