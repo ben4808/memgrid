@@ -147,8 +147,9 @@ class ListController < ApplicationController
 
       word_rec = Word.where(word: word).first
       if !word_rec
-	def_data = get_google_word(word)
-	word_rec = Word.create(word: word, first_def: def_data[:short_defs].join('|'), definition: def_data[:html_def])
+	#def_data = get_google_word(word)
+	#word_rec = Word.create(word: word, first_def: def_data[:short_defs].join('|'), definition: def_data[:html_def])
+	word_rec = Word.create(word: word, first_def: "", definition: "")
       end
       lw = ListWord.create(list_id: id, word_id: word_rec.id)
       defs.each do |d|
