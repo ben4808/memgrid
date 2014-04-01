@@ -83,7 +83,8 @@ class ListController < ApplicationController
     @list_id = params[:id]
     @word_id = params[:wid]
     @word = Word.find(@word_id)
-    @show_load_link = @logged_in && List.find(@list_id).user_id.to_s == @logged_uid.to_s
+    #@show_load_link = @logged_in && List.find(@list_id).user_id.to_s == @logged_uid.to_s
+    @show_load_link = false # Turns out Vocabulary.com uses WordNet definitions anyway. How about that?
     render layout: false
   end
 
@@ -188,16 +189,20 @@ class ListController < ApplicationController
     word.downcase!
     word_data = Word.where(:word => word).first
 
-    #if word does not exist in database, grab definition from Merriam-Webster
+    #if word does not exist in database, return a definitionless word. They can import from Vocabulary.com if they want.
     if(!word_data)
+      # Old Merriam-Webster code
       #data = Nokogiri::XML(File.open('/home/zoonb/memgrid/public/the.xml'))
       #data = Nokogiri::XML(open("http://www.dictionaryapi.com/api/v1/references/collegiate/xml/#{URI::escape(word)}?key=962712b3-cfd1-41ff-94a7-fa2e38584961"))
       #full_def = word_data_to_html(word, data)
       #first_def = first_definition(word, data)
       #word_data = Word.create(word: word, first_def: first_def, definition: full_def)
 
-      def_data = get_google_word(word)
-      word_data = Word.create(word: word, first_def: def_data[:short_defs].join('|'), definition: def_data[:html_def])
+      # Old Google API code
+      #def_data = get_google_word(word)
+      #word_data = Word.create(word: word, first_def: def_data[:short_defs].join('|'), definition: def_data[:html_def])
+
+      word_data = Word.create(word: word, first_def: "", definition: "")
     end
 
     existing_record = ListWord.where(:list_id => list_id, :word_id => word_data.id).first
@@ -206,6 +211,7 @@ class ListController < ApplicationController
     list_word = ListWord.create(list_id: list_id, word_id: word_data.id)
     lwdefs = []
     word_data.first_def.split('|').each do |defi|
+      next if defi.size == 0
       lwdefs << ListwordDef.create(list_word_id: list_word.id, definition: defi)
     end
     return {id: word_data.id, definition: def_list_to_html(lwdefs)}
